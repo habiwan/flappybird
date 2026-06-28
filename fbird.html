@@ -11,7 +11,8 @@
         viewport-fit=cover">
         
     <link rel="shortcut icon"
-        href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UZ_road_sign_1.25.2.svg/960px-UZ_road_sign_1.25.2.svg.png"
+        href="
+        https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/UZ_road_sign_1.25.2.svg/960px-UZ_road_sign_1.25.2.svg.png"
         type="image/svg+xml">
         
     <title>famous bird</title>
@@ -21,7 +22,7 @@
            BASE LAYOUT & TYPOGRAPHY
            ========================================== */
         body {
-            margin: 0; 
+            margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
@@ -56,16 +57,16 @@
             max-width: 90%;
             max-height: 90%;
             border-radius: 16px;
-            container-type: inline-size; 
+            container-type: inline-size;
         }
 
         /* Adjusts sizing for desktop monitors */
         @media (min-width: 600px) {
             .game-container {
-                height: 95dvh;          
-                max-height: 95%;        
-                width: auto;            
-                border-radius: 16px;    
+                height: 95dvh;
+                max-height: 95%;
+                width: auto;
+                border-radius: 16px;
             }
         }
 
@@ -166,7 +167,7 @@
 
         /* Adds a slight physical "press" effect when clicked */
         button:active { 
-            transform: scale(0.92); 
+            transform: scale(0.92);
         }
 
         /* ==========================================
@@ -207,7 +208,7 @@
 
         /* Utility class to easily hide UI elements */
         .hidden { 
-            display: none !important; 
+            display: none !important;
         }
     </style>
 </head>
@@ -227,39 +228,57 @@
                     "flap your wings"
                 </div>
                 <button id="startButton">START GAME</button>
+                <div class="instructions">
+                    Avoid the pipes and<br>
+                    don't hit the ground!
+                </div>
             </div>
             
             <div id="gameOverScreen" class="hidden">
-                <div class="message" 
-                     style="font-size: 8cqw; font-weight:bold; color: #ff4757; margin-bottom: 2cqw;">
-                    GAME OVER
+                <div class="message" style="font-size: 8cqw;
+                        font-weight:bold;
+                        color: #ff4757;
+                        margin-bottom: 2cqw;">
+                        GAME OVER
                 </div>
-                <div class="score-display" 
-                     style="margin-top: 0; margin-bottom: 2cqw;">
-                    Score: <span id="finalScore">0</span>
+                <div class="score-display" style="margin-top: 0;
+                        margin-bottom: 2cqw;">
+                        Score: <span id="finalScore">0</span>
                 </div>
 
-                <div id="highscoreEntry" class="hidden" 
-                     style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="font-size: 5cqw; margin-bottom: 2cqw; color: #f1c40f; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-                        NEW HIGH SCORE!
+                <div id="highscoreEntry" class="hidden" style="display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        width: 100%;">
+                    <div style="font-size: 5cqw;
+                        margin-bottom: 2cqw;
+                        color: #f1c40f;
+                        font-weight: bold;
+                        text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                        🎉 NEW HIGH SCORE 🏆
                     </div>
                     <input type="text" id="playerName" placeholder="YOUR NAME" maxlength="13">
-                    <button id="saveScoreButton" style="font-size: 5cqw; padding: 2.5cqw 8cqw;">
+                    <button id="saveScoreButton" style="font-size: 5cqw;
+                        padding: 2.5cqw 8cqw;">
                         SAVE SCORE
                     </button>
                 </div>
 
-                <div id="leaderboard" class="instructions" 
-                     style="margin-top: 2cqw; font-size: 4.5cqw;">
-                    <div style="font-weight: 900; margin-bottom: 3cqw; text-align: center; color: #f1c40f;">
+                <div id="leaderboard" class="instructions" style="margin-top: 2cqw;
+                    font-size: 4.5cqw;">
+                    <div style="font-weight: 900;
+                        margin-bottom: 3cqw;                    
+                        text-align: center;
+                        color: #f1c40f;">
                         TOP 5 SCORES
                     </div>
                     <div id="leaderboardList" style="text-align: left;">
-                        </div>
+                    </div>
                 </div>
 
-                <button id="restartButton" style="margin-top: 3cqw;">TRY AGAIN</button>
+                <button id="restartButton" style="margin-top: 3cqw;">
+                    TRY AGAIN
+                </button>
             </div>
             
             <div id="gameUI" class="hidden">
@@ -288,23 +307,32 @@
         // 2. GLOBAL GAME STATE & TRACKERS
         // ==========================================
         // Tracks the current menu/game phase.
-        let gameState = 'start'; 
+        let gameState = 'start';
+
         // Current session score.
-        let score = 0; 
+        let score = 0;
+
         // Array to hold {name, score} objects for the leaderboard.
-        let highscores = []; 
+        let highscores = [];
+
 
         // Time and Speed setup for smooth animations.
         let lastTime = 0;
         let pipeSpawnTimer = 0;
+
+        // NEW: Party popper 🎉 
+        let confettiParticles = [];
         
         // Target pixel distance between pipes. Ensures that when 
         // the game speeds up, the horizontal gap stays identical.
-        const PIPE_DISTANCE = 220; 
+        const PIPE_DISTANCE = 220;
+
         // Starting speed in pixels per second.
-        const BASE_SPEED = 120; 
+        const BASE_SPEED = 120;
+
         // How much faster to go every 10 points.
-        const SPEED_INCREMENT = 15; 
+        const SPEED_INCREMENT = 15;
+
 
         // ==========================================
         // 3. GAME ENTITIES (BIRD & PIPES)
@@ -355,7 +383,8 @@
             update: function(dt) {
                 if (gameState === 'playing') {
                     // Apply gravity over time
-                    this.velocity += this.gravity * dt * 60; 
+                    this.velocity += this.gravity * dt * 60;
+
                     // Move the bird by the current velocity
                     this.y += this.velocity * dt;
 
@@ -487,8 +516,8 @@
             // Clears pipes and resets speed for a new game
             reset: function() {
                 this.position = [];
-                this.dx = BASE_SPEED; 
-                pipeSpawnTimer = 0; 
+                this.dx = BASE_SPEED;
+                pipeSpawnTimer = 0;
             }
         };
 
@@ -588,7 +617,7 @@
             document.getElementById('restartButton').classList.remove('hidden');
             
             // Clear the input box for the next session
-            nameInput.value = ''; 
+            nameInput.value = '';
             
             // Re-render the visual list
             renderLeaderboard();
@@ -608,9 +637,10 @@
                 (highscores.length < 5 || score > highscores[highscores.length - 1].score);
             
             if (isHighScore) {
+                spawnConfetti();
                 // Show input block, force user to save before restarting
                 document.getElementById('highscoreEntry').classList.remove('hidden');
-                document.getElementById('restartButton').classList.add('hidden'); 
+                document.getElementById('restartButton').classList.add('hidden');
             } else {
                 // Skip input block, just show standard restart button
                 document.getElementById('highscoreEntry').classList.add('hidden');
@@ -645,6 +675,54 @@
             resetGame();
         }
 
+        // Function to create the confetti particles
+        function spawnConfetti() {
+            for (let i = 0; i < 150; i++) {
+                confettiParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: -10, // Start just above the screen
+                    vx: (Math.random() - 0.5) * 4, // Horizontal drift
+                    vy: Math.random() * 3 + 2,     // Speed falling
+                    rotation: Math.random() * Math.PI * 2, // Starting angle
+                    rotationSpeed: (Math.random() - 0.5) * 0.2, // How fast it spins
+                    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                    life: 200 // Lasts a bit longer
+                });
+            }
+        }
+
+        // Function to update and draw confetti particles
+        function updateAndDrawConfetti() {
+            confettiParticles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rotation += p.rotationSpeed; // Update the angle
+                p.life--;
+
+                ctx.save(); // Save the current canvas state
+        
+                // Move to the particle's position and rotate
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+                
+                // Draw the Rhomboid centered at 0,0
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                const w = 6;  // Width
+                const h = 10; // Height
+                ctx.moveTo(0, -h / 2); // Top
+                ctx.lineTo(w / 2, 0);  // Right
+                ctx.lineTo(0, h / 2);  // Bottom
+                ctx.lineTo(-w / 2, 0); // Left
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.restore(); // Restore state so the rest of the game draws normally
+
+                if (p.life <= 0) confettiParticles.splice(i, 1);
+            });
+        }
+
         // ==========================================
         // 7. CORE RENDER & UPDATE LOOP
         // ==========================================
@@ -654,7 +732,9 @@
             drawBackground();
             pipes.draw();
             drawGround();
-            bird.draw(); 
+            bird.draw();
+            // Draw confetti on top of everything
+            updateAndDrawConfetti();
         }
 
         // Master update function that processes physics
@@ -696,7 +776,7 @@
             // Only prevent default zooming behavior during active gameplay.
             // This allows the highscore form typing to work normally.
             if (gameState === 'playing') {
-                e.preventDefault(); 
+                e.preventDefault();
                 flapBird();
             }
         }, { passive: false });
